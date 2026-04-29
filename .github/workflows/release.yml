@@ -2,6 +2,8 @@ name: release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
@@ -30,7 +32,7 @@ jobs:
           cache: true
 
       - name: Stash GoReleaser config
-        run: cp .goreleaser.yaml /tmp/.goreleaser.yaml
+        run: cp .goreleaser.yaml /tmp/.goreleaser.yaml || touch /tmp/.goreleaser.yaml
 
       - name: Checkout release tag
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -41,6 +43,13 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean --config /tmp/.goreleaser.yaml
+          args: release --clean ${{ !startsWith(github.ref, 'refs/tags/') && '--snapshot' || '' }} --config /tmp/.goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/*
