@@ -76,7 +76,7 @@ func ListInstances(ctx context.Context, provider common.ConfigurationProvider, c
 				CompartmentID:   comp.ID,
 				CompartmentName: comp.Name,
 				Name:            name,
-				State:           fmt.Sprintf("%s", inst.LifecycleState),
+				State:           string(inst.LifecycleState),
 				Shape:           shape,
 				OCPU:            ocpu,
 				MemoryGB:        memGB,

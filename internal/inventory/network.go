@@ -54,7 +54,7 @@ func ListVCNs(ctx context.Context, provider common.ConfigurationProvider, comp C
 				CompartmentName: comp.Name,
 				Name:            name,
 				CIDRBlocks:      cidrs,
-				State:           strings.ToUpper(fmt.Sprintf("%s", vcn.LifecycleState)),
+				State:           strings.ToUpper(string(vcn.LifecycleState)),
 			})
 		}
 

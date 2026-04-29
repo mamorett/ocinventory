@@ -47,7 +47,7 @@ func ListVolumes(ctx context.Context, provider common.ConfigurationProvider, com
 				Type:            "Block",
 				Name:            name,
 				SizeGB:          sizeGB,
-				State:           fmt.Sprintf("%s", v.LifecycleState),
+				State:           string(v.LifecycleState),
 			})
 		}
 
@@ -102,7 +102,7 @@ func ListVolumes(ctx context.Context, provider common.ConfigurationProvider, com
 					Type:            "Boot",
 					Name:            name,
 					SizeGB:          sizeGB,
-					State:           fmt.Sprintf("%s", bv.LifecycleState),
+					State:           string(bv.LifecycleState),
 				})
 			}
 
