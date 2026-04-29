@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  build-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,27 +25,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout release tag
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: git checkout ${{ inputs.tag }}
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
 
-      - name: Stash GoReleaser config
-        run: cp .goreleaser.yaml /tmp/.goreleaser.yaml || touch /tmp/.goreleaser.yaml
-
-      - name: Checkout release tag
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: git checkout ${{ inputs.tag }}
-
-      - name: GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean ${{ !startsWith(github.ref, 'refs/tags/') && '--snapshot' || '' }} --config /tmp/.goreleaser.yaml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build binaries
+        run: make all
 
       - name: Upload artifacts
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -53,3 +44,11 @@ jobs:
         with:
           name: packages
           path: dist/*
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
